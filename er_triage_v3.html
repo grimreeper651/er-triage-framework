@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ER Triage Framework · Sneha Manjunath</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1B2A;
+  --navy-mid:#1A2D42;
+  --navy-light:#243650;
+  --teal:#00B4A0;
+  --teal-light:#00D4BC;
+  --teal-pale:#E0F7F5;
+  --amber:#C97B00;
+  --amber-pale:#FDF3DC;
+  --red:#C0392B;
+  --red-pale:#FDECEA;
+  --blue:#1A6FB5;
+  --blue-pale:#E3F0FC;
+  --green:#0E7A5F;
+  --green-pale:#E2F5EE;
+  --purple:#5B4FCF;
+  --purple-pale:#EEEAFC;
+  --border:#E2E8F0;
+  --text-main:#0D1B2A;
+  --text-mid:#4A5568;
+  --text-soft:#718096;
+  --bg:#F8FAFC;
+  --white:#FFFFFF;
+  --font:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:#EEF2F7;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px}
+.wrap{width:100%;max-width:780px;background:var(--white);border-radius:20px;overflow:hidden;box-shadow:0 4px 32px rgba(13,27,42,.12)}
+
+/* HEADER */
+.hdr{background:var(--navy);padding:28px 32px 22px}
+.hdr-eye{font-size:10px;letter-spacing:.12em;color:var(--teal-light);text-transform:uppercase;font-weight:500;margin-bottom:6px}
+.hdr-title{font-size:22px;font-weight:600;color:#fff;margin-bottom:4px}
+.hdr-sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.5}
+.hdr-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.htag{font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(0,180,160,.35);color:rgba(0,212,188,.8);font-weight:500}
+
+/* TABS */
+.tab-bar{display:flex;background:var(--navy-mid);border-bottom:1px solid rgba(255,255,255,.08)}
+.tab{padding:11px 20px;font-size:12px;font-weight:500;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--teal-light);border-bottom-color:var(--teal-light)}
+.tab:hover:not(.active){color:rgba(255,255,255,.65)}
+
+/* PROGRESS */
+.prog-bar{height:3px;background:rgba(0,180,160,.15)}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-light));transition:width .4s ease}
+
+/* BODY */
+.body{padding:28px 32px;background:var(--bg);min-height:440px}
+
+/* BREADCRUMB */
+.bc{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:18px}
+.bc-i{font-size:11px;color:var(--text-soft);white-space:nowrap}
+.bc-s{font-size:11px;color:var(--border)}
+.bc-a{font-size:11px;color:var(--navy);font-weight:600}
+
+/* STEP HEADER */
+.step-hdr{font-size:10px;color:var(--text-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:500}
+.step-q{font-size:17px;font-weight:600;color:var(--text-main);line-height:1.4;margin-bottom:18px}
+
+/* CASE REF BADGE */
+.ref-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:4px 12px;border-radius:20px;background:var(--teal-pale);border:1px solid rgba(0,180,160,.25);color:var(--green);margin-bottom:14px;font-family:var(--mono)}
+.ref-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0}
+
+/* INTAKE FORM */
+.field-group{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.flabel{font-size:11px;color:var(--text-mid);margin-bottom:4px;font-weight:500}
+.flabel span{color:var(--red)}
+.finput,.fselect{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-main);background:var(--white);outline:none;transition:border-color .15s;font-family:var(--font)}
+.finput:focus,.fselect:focus{border-color:var(--teal)}
+.fselect{padding-right:30px;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23718096' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center}
+.anon-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;background:var(--white)}
+.anon-row input{width:14px;height:14px;cursor:pointer;accent-color:var(--teal)}
+.anon-txt{font-size:12px;color:var(--text-main)}
+.anon-sub{font-size:10px;color:var(--text-soft);margin-left:auto}
+
+/* CASE CATEGORIES */
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.cat-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .18s;text-align:left}
+.cat-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(13,27,42,.1)}
+.cat-card.conduct:hover{border-color:var(--red)}
+.cat-card.grievance:hover{border-color:var(--amber)}
+.cat-card.perf:hover{border-color:var(--green)}
+.cat-card.absence:hover{border-color:var(--blue)}
+.cat-card.accommodation:hover{border-color:var(--purple)}
+.cat-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.cat-icon svg{width:18px;height:18px}
+.cat-card.conduct .cat-icon{background:var(--red-pale)}
+.cat-card.grievance .cat-icon{background:var(--amber-pale)}
+.cat-card.perf .cat-icon{background:var(--green-pale)}
+.cat-card.absence .cat-icon{background:var(--blue-pale)}
+.cat-card.accommodation .cat-icon{background:var(--purple-pale)}
+.cat-name{font-size:12px;font-weight:600;color:var(--text-main);margin-bottom:3px}
+.cat-desc{font-size:10px;color:var(--text-soft);line-height:1.4}
+
+/* OPTIONS */
+.opt-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.opt-btn{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;text-align:left;transition:all .15s;display:flex;align-items:flex-start;gap:10px}
+.opt-btn:hover{border-color:var(--teal);background:#F0FDFB}
+.opt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.opt-text{font-size:13px;color:var(--text-main);line-height:1.5}
+.opt-sub{font-size:10px;color:var(--text-soft);margin-top:2px}
+
+/* SECTION HEADER for sub-types */
+.opt-section-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-soft);margin:12px 0 6px;padding:0 2px}
+
+/* BUTTONS */
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.back-btn{background:none;border:none;font-size:12px;color:var(--text-soft);cursor:pointer;padding:0;font-family:var(--font)}
+.back-btn:hover{color:var(--text-main)}
+.rst-btn{background:none;border:1.5px solid var(--border);border-radius:8px;font-size:11px;color:var(--text-mid);cursor:pointer;padding:6px 12px;font-family:var(--font);transition:all .15s}
+.rst-btn:hover{background:var(--white);border-color:var(--text-soft)}
+.pri-btn{background:var(--navy);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:opacity .15s}
+.pri-btn:hover{opacity:.85}
+
+/* OUTCOME CARDS */
+.out-wrap{border-radius:14px;overflow:hidden;margin-bottom:14px;border:1px solid transparent}
+.out-hdr{padding:18px 18px 14px}
+.out-tag{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
+.out-title{font-size:16px;font-weight:600;line-height:1.3;margin-bottom:6px}
+.out-body{font-size:12px;line-height:1.7}
+.out-actions{padding:12px 18px}
+.out-alabel{font-size:10px;letter-spacing:.07em;text-transform:uppercase;opacity:.6;margin-bottom:8px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:10px;padding:4px 10px;border-radius:20px;font-weight:500}
+
+/* OUTCOME COLOUR THEMES */
+.out-wrap.formal{background:#FDECEA;border-color:rgba(192,57,43,.2)}
+.out-wrap.formal .out-hdr{background:#FDECEA;color:var(--red)}
+.out-wrap.formal .out-tag{background:rgba(192,57,43,.12);color:var(--red)}
+.out-wrap.formal .out-title{color:#8B1A1A}
+.out-wrap.formal .out-body{color:#7A2020}
+.out-wrap.formal .out-actions{background:rgba(192,57,43,.06)}
+.out-wrap.formal .chip{background:rgba(192,57,43,.1);color:var(--red);border:1px solid rgba(192,57,43,.2)}
+
+.out-wrap.escalate{background:var(--amber-pale);border-color:rgba(201,123,0,.2)}
+.out-wrap.escalate .out-hdr{background:var(--amber-pale);color:var(--amber)}
+.out-wrap.escalate .out-tag{background:rgba(201,123,0,.12);color:var(--amber)}
+.out-wrap.escalate .out-title{color:#7A4A00}
+.out-wrap.escalate .out-body{color:#6B4000}
+.out-wrap.escalate .out-actions{background:rgba(201,123,0,.06)}
+.out-wrap.escalate .chip{background:rgba(201,123,0,.1);color:var(--amber);border:1px solid rgba(201,123,0,.2)}
+
+.out-wrap.informal{background:var(--green-pale);border-color:rgba(14,122,95,.2)}
+.out-wrap.informal .out-hdr{background:var(--green-pale);color:var(--green)}
+.out-wrap.informal .out-tag{background:rgba(14,122,95,.12);color:var(--green)}
+.out-wrap.informal .out-title{color:#064A38}
+.out-wrap.informal .out-body{color:#0A5A44}
+.out-wrap.informal .out-actions{background:rgba(14,122,95,.06)}
+.out-wrap.informal .chip{background:rgba(14,122,95,.1);color:var(--green);border:1px solid rgba(14,122,95,.2)}
+
+.out-wrap.tribunal{background:#1A1A2E;border-color:rgba(91,79,207,.5)}
+.out-wrap.tribunal .out-hdr{background:#1A1A2E;color:#C9C4FF}
+.out-wrap.tribunal .out-tag{background:rgba(91,79,207,.25);color:#A89CFF}
+.out-wrap.tribunal .out-title{color:#E0DCFF}
+.out-wrap.tribunal .out-body{color:#B0AADD}
+.out-wrap.tribunal .out-actions{background:rgba(0,0,0,.3)}
+.out-wrap.tribunal .chip{background:rgba(91,79,207,.2);color:#B9B3FF;border:1px solid rgba(91,79,207,.3)}
+
+/* LOG CARD */
+.sub-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:18px;margin-top:10px}
+.sub-title{font-size:13px;font-weight:600;color:var(--text-main);margin-bottom:4px}
+.sub-sub{font-size:11px;color:var(--text-soft);line-height:1.5;margin-bottom:14px}
+.sum-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.si{}.si-l{font-size:10px;color:var(--text-soft);margin-bottom:2px}.si-v{font-size:12px;color:var(--text-main);font-weight:600}
+.sub-acts{display:flex;gap:8px;flex-wrap:wrap}
+.disc{font-size:10px;color:var(--text-soft);line-height:1.6;padding:10px 12px;background:var(--white);border-radius:8px;margin-top:10px;border:1.5px solid var(--border)}
+
+/* SUCCESS */
+.suc-screen{text-align:center;padding:40px 20px}
+.suc-info-box{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:18px;text-align:left;display:flex;flex-direction:column;gap:10px}
+.suc-info-row{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text-mid);line-height:1.5}
+.suc-info-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.suc-icon{width:52px;height:52px;border-radius:50%;background:var(--green-pale);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.suc-icon svg{width:24px;height:24px}
+.suc-title{font-size:18px;font-weight:600;color:var(--text-main);margin-bottom:4px}
+.suc-sub{font-size:12px;color:var(--text-soft);line-height:1.5;margin-bottom:14px}
+.suc-ref{display:inline-block;font-size:13px;font-weight:500;padding:8px 16px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);color:var(--text-main);margin-bottom:18px;font-family:var(--mono)}
+.route-row{display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.rpill{font-size:10px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);color:var(--text-soft);background:var(--bg)}
+.rpill.active{background:var(--green-pale);border-color:rgba(14,122,95,.35);color:var(--green);font-weight:600}
+.rarr{font-size:11px;color:var(--text-soft)}
+
+/* DOT COLOURS */
+.dot-conduct{background:var(--red)}
+.dot-grievance{background:var(--amber)}
+.dot-perf{background:var(--green)}
+.dot-absence{background:var(--blue)}
+.dot-accommodation{background:var(--purple)}
+.dot-neutral{background:var(--border)}
+
+/* ERR */
+.err{font-size:11px;color:var(--red);margin-top:6px;font-weight:500}
+
+/* MANAGER FRAMING BANNER */
+.mgr-banner{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--blue-pale);border:1px solid rgba(26,111,181,.2);border-radius:10px;margin-bottom:20px}
+.mgr-banner-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.mgr-banner-text{font-size:11px;color:#1A4A7A;line-height:1.55}
+.mgr-banner-text strong{font-weight:600}
+
+/* TWO-STAGE INTAKE */
+.intake-stage-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.intake-stage{font-size:11px;font-weight:600;color:var(--text-soft);padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);cursor:default}
+.intake-stage.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.intake-stage.done{background:var(--teal-pale);color:var(--green);border-color:rgba(0,180,160,.3);cursor:pointer}
+.intake-stage-sep{font-size:12px;color:var(--text-soft)}
+.intake-banner{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:var(--blue-pale);border:1px solid rgba(26,111,181,.2);border-radius:10px;margin-bottom:20px}
+.intake-banner-hr{background:var(--purple-pale);border-color:rgba(91,79,207,.2)}
+.intake-banner-hr .intake-banner-text{color:#3B2FA0}
+.intake-banner-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.intake-banner-text{font-size:11px;color:#1A4A7A;line-height:1.55}
+.intake-banner-text strong{font-weight:600}
+.flabel-hint{font-size:10px;color:var(--text-soft);margin-top:3px;line-height:1.4}
+
+/* SENSITIVITY SELECTOR */
+.sensitivity-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.sens-opt{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid);padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;background:var(--white);transition:all .15s;font-family:var(--font)}
+.sens-opt input{display:none}
+.sens-opt:hover{border-color:var(--teal);color:var(--text-main)}
+.sens-opt.sens-active{border-color:var(--navy);background:var(--navy);color:#fff}
+
+/* COMPLEXITY SCORE */
+.cx-wrap{border-radius:12px;padding:14px 16px;margin-top:12px;margin-bottom:4px;display:flex;align-items:flex-start;gap:14px}
+.cx-wrap.cx-low{background:#E2F5EE;border:1px solid rgba(14,122,95,.2)}
+.cx-wrap.cx-medium{background:var(--amber-pale);border:1px solid rgba(201,123,0,.2)}
+.cx-wrap.cx-high{background:var(--red-pale);border:1px solid rgba(192,57,43,.2)}
+.cx-wrap.cx-critical{background:#1A1A2E;border:1px solid rgba(91,79,207,.4)}
+.cx-badge{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:62px;padding:8px;border-radius:8px;text-align:center}
+.cx-wrap.cx-low .cx-badge{background:rgba(14,122,95,.12)}
+.cx-wrap.cx-medium .cx-badge{background:rgba(201,123,0,.12)}
+.cx-wrap.cx-high .cx-badge{background:rgba(192,57,43,.12)}
+.cx-wrap.cx-critical .cx-badge{background:rgba(91,79,207,.2)}
+.cx-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.cx-wrap.cx-low .cx-label{color:var(--green)}
+.cx-wrap.cx-medium .cx-label{color:var(--amber)}
+.cx-wrap.cx-high .cx-label{color:var(--red)}
+.cx-wrap.cx-critical .cx-label{color:#A89CFF}
+.cx-score{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}
+.cx-wrap.cx-low .cx-score{color:var(--green)}
+.cx-wrap.cx-medium .cx-score{color:var(--amber)}
+.cx-wrap.cx-high .cx-score{color:var(--red)}
+.cx-wrap.cx-critical .cx-score{color:#B9B3FF}
+.cx-detail{}
+.cx-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.cx-wrap.cx-low .cx-title{color:#064A38}
+.cx-wrap.cx-medium .cx-title{color:#7A4A00}
+.cx-wrap.cx-high .cx-title{color:#8B1A1A}
+.cx-wrap.cx-critical .cx-title{color:#E0DCFF}
+.cx-desc{font-size:11px;line-height:1.55}
+.cx-wrap.cx-low .cx-desc{color:#0A5A44}
+.cx-wrap.cx-medium .cx-desc{color:#6B4000}
+.cx-wrap.cx-high .cx-desc{color:#7A2020}
+.cx-wrap.cx-critical .cx-desc{color:#B0AADD}
+
+/* ABOUT PANEL */
+.about-wrap{padding:28px 32px;background:var(--bg)}
+.about-section{margin-bottom:32px}
+.about-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
+.about-heading{font-size:16px;font-weight:600;color:var(--text-main);line-height:1.4;margin-bottom:10px}
+.about-body{font-size:13px;color:var(--text-mid);line-height:1.75}
+.about-metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.about-metric{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:18px 14px;text-align:center}
+.about-metric-num{font-size:32px;font-weight:700;color:var(--navy);font-family:var(--mono);line-height:1;margin-bottom:8px}
+.about-metric-label{font-size:11px;color:var(--text-soft);line-height:1.5}
+.about-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.about-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:16px}
+.about-card-icon{font-size:20px;margin-bottom:8px}
+.about-card-title{font-size:12px;font-weight:600;color:var(--text-main);margin-bottom:4px}
+.about-card-body{font-size:11px;color:var(--text-soft);line-height:1.6}
+.about-links{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.about-link{font-size:12px;font-weight:600;color:var(--teal);text-decoration:none;padding:6px 14px;border:1.5px solid rgba(0,180,160,.35);border-radius:20px;transition:all .15s}
+.about-link:hover{background:var(--teal-pale)}
+
+/* FLOW MAP TAB */
+.flowmap{padding:0;overflow-x:auto;background:var(--bg)}
+.flowmap svg{display:block;margin:0 auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:14px 24px;border-top:1.5px solid var(--border);background:var(--white)}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid)}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* SVG node styles */
+.c-teal rect,.c-teal ellipse{fill:var(--teal-pale);stroke:var(--teal);stroke-width:1.5}
+.c-amber rect,.c-amber polygon{fill:var(--amber-pale);stroke:var(--amber);stroke-width:1.5}
+.c-red rect{fill:var(--red-pale);stroke:var(--red);stroke-width:1.5}
+.c-green rect,.c-green polygon{fill:var(--green-pale);stroke:var(--green);stroke-width:1.5}
+.c-purple rect{fill:var(--purple-pale);stroke:var(--purple);stroke-width:1.5}
+.c-navy rect{fill:var(--navy);stroke:var(--navy-light);stroke-width:1.5}
+.th{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;fill:var(--text-main)}
+.ts{font-family:'DM Sans',sans-serif;font-size:9.5px;fill:var(--text-soft)}
+.tred{fill:var(--red)}
+.tgreen{fill:var(--green)}
+.tamber{fill:var(--amber)}
+.tpurple{fill:var(--purple)}
+.twhite{fill:#fff}
+
+@media(max-width:520px){
+  .hdr{padding:20px}
+  .body{padding:18px}
+  .cat-grid{grid-template-columns:1fr}
+  .field-row{grid-template-columns:1fr}
+  .sum-grid{grid-template-columns:1fr}
+  .about-metrics-row{grid-template-columns:1fr}
+  .about-cards{grid-template-columns:1fr}
+  .about-wrap{padding:18px}
+  .cx-wrap{flex-direction:column;gap:10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-eye">HR Practice Tool · Sneha Manjunath</div>
+    <div class="hdr-title">ER Triage Framework</div>
+    <div class="hdr-sub">Log a case, triage the issue, and route to the appropriate ER process — from informal support to Employment Tribunal referral.</div>
+    <div class="hdr-tags">
+      <span class="htag">UK Employment Law</span>
+      <span class="htag">ACAS Code of Practice</span>
+      <span class="htag">Equality Act 2010</span>
+      <span class="htag">Employment Rights Act 1996</span>
+      <span class="htag">COI Checks</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" id="tab-triage" onclick="switchTab('triage')">Interactive triage</div>
+    <div class="tab" id="tab-flow" onclick="switchTab('flow')">Full case lifecycle</div>
+    <div class="tab" id="tab-about" onclick="switchTab('about')">About this project</div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+
+  <!-- TRIAGE PANEL -->
+  <div id="panel-triage">
+    <div class="body">
+      <div class="bc" id="bc"></div>
+      <div id="content"></div>
+    </div>
+  </div>
+
+  <!-- ABOUT PANEL -->
+  <div id="panel-about" style="display:none">
+    <div class="about-wrap">
+
+      <div class="about-section">
+        <div class="about-eyebrow">The problem</div>
+        <div class="about-heading">Line managers didn't know when to escalate — and HR paid the price</div>
+        <div class="about-body">In high-volume HR environments, the highest driver of wasted HR time is not case complexity — it is poor initial triage. Managers escalate informally-resolvable issues to formal processes too early, or sit on serious matters too long. Without a consistent first-response framework, every case lands in HR's inbox the same way: urgent, undocumented, and missing half the context needed to act.</div>
+      </div>
+
+      <div class="about-metrics-row">
+        <div class="about-metric">
+          <div class="about-metric-num">25%</div>
+          <div class="about-metric-label">Reduction in formal grievance escalations observed in environments using structured triage</div>
+        </div>
+        <div class="about-metric">
+          <div class="about-metric-num">15+</div>
+          <div class="about-metric-label">People leaders able to self-serve initial triage using an earlier version of this framework</div>
+        </div>
+        <div class="about-metric">
+          <div class="about-metric-num">5</div>
+          <div class="about-metric-label">ER case categories covered — from informal conduct to Employment Tribunal pathway</div>
+        </div>
+      </div>
+
+      <div class="about-section">
+        <div class="about-eyebrow">What I built</div>
+        <div class="about-heading">A manager-facing triage tool — not an HR reference document</div>
+        <div class="about-body">Most ER frameworks are built for HR professionals and live as static Word documents that managers never read. This tool was designed from the opposite direction: starting with the questions a line manager actually asks when a people issue lands on their desk, and routing them — without HR jargon — to the right first response. The language is deliberate. "Has a formal process already been started?" is a question a manager can answer. "Identify the procedural stage" is not.</div>
+      </div>
+
+      <div class="about-section">
+        <div class="about-eyebrow">Design decisions</div>
+        <div class="about-heading">Why it works the way it does</div>
+        <div class="about-cards">
+          <div class="about-card">
+            <div class="about-card-icon">⚖</div>
+            <div class="about-card-title">Complexity scoring</div>
+            <div class="about-card-body">Every triage path now produces a complexity score (Low / Medium / High) with an estimated HR time cost. This exists because not all cases consume equal resource — and HR teams need to triage their own time, not just the case.</div>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon">🔒</div>
+            <div class="about-card-title">COI check first</div>
+            <div class="about-card-body">Conflict of interest is checked before any triage begins. A missed COI that surfaces mid-investigation is one of the most common causes of procedural unfairness — and one of the easiest to prevent.</div>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon">📋</div>
+            <div class="about-card-title">ET pathway included</div>
+            <div class="about-card-body">Most triage frameworks stop at internal appeal. This one continues to ACAS Early Conciliation and ET referral — because that's the actual end of the process, and HR needs to know what happens to documentation after a claim is filed.</div>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon">🗓</div>
+            <div class="about-card-title">Sickness sub-typed</div>
+            <div class="about-card-body">Short-term, pattern, long-term (welfare stage), and long-term approaching capability all route differently. Treating them the same is one of the most common manager errors — and one of the most common sources of disability discrimination risk.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-section">
+        <div class="about-eyebrow">What's not in scope</div>
+        <div class="about-heading">Limitations I'd build next</div>
+        <div class="about-body">This version does not include a safeguarding pathway (critical in education, healthcare, and any organisation working with vulnerable people), union-specific steps for unionised environments, or GDPR handling guidance within the intake form. A future version would also integrate with a live case management system rather than simulating routing. The framework is also UK-law specific — a multi-jurisdiction version would require significant additional branching.</div>
+      </div>
+
+      <div class="about-section">
+        <div class="about-eyebrow">About the author</div>
+        <div class="about-heading">Sneha Manjunath — HR Professional</div>
+        <div class="about-body">This framework was developed as an independent HR practice project, drawing on experience in high-volume employee relations environments including multi-site UK operations. It reflects a particular interest in the intersection of ER process design, manager capability building, and data-informed HR practice. Built 2025–2026.</div>
+        <div class="about-links">
+          <a class="about-link" href="https://www.linkedin.com/in/sneha-manjunath1/" target="_blank">LinkedIn ↗</a>
+          <a class="about-link" href="mailto:sneha.manjunath0601@gmail.com">Contact ↗</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FLOW PANEL -->
+  <div id="panel-flow" style="display:none">
+    <div class="flowmap">
+      <svg width="100%" viewBox="0 0 720 1780" role="img" aria-label="ER case lifecycle flowchart including Employment Tribunal path">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arr-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arr-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#5B4FCF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <rect x="0" y="0" width="720" height="1780" fill="#F8FAFC"/>
+
+        <!-- START -->
+        <g class="node c-teal">
+          <ellipse cx="360" cy="52" rx="90" ry="26" stroke-width="1.5"/>
+          <text class="th tgreen" x="360" y="52" text-anchor="middle" dominant-baseline="central">Incident reported</text>
+        </g>
+        <line x1="360" y1="78" x2="360" y2="108" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+
+        <!-- COI -->
+        <g class="node c-amber">
+          <polygon points="360,108 450,152 360,196 270,152"/>
+          <text class="th tamber" x="360" y="152" text-anchor="middle" dominant-baseline="central">COI present?</text>
+        </g>
+        <line x1="270" y1="152" x2="160" y2="152" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="213" y="143" text-anchor="middle">Yes</text>
+        <g class="node c-amber">
+          <rect x="60" y="130" width="100" height="44" rx="6"/>
+          <text class="th tamber" x="110" y="152" text-anchor="middle" dominant-baseline="central">Reassign handler</text>
+        </g>
+        <path d="M110 174 L110 238 L270 238" fill="none" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="130" y="218">Reassigned</text>
+        <line x1="360" y1="196" x2="360" y2="220" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="212">No</text>
+
+        <!-- ASSESS SEVERITY -->
+        <g class="node c-amber">
+          <polygon points="360,220 456,268 360,316 264,268"/>
+          <text class="th tamber" x="360" y="261" text-anchor="middle" dominant-baseline="central">Assess severity</text>
+          <text class="ts tamber" x="360" y="277" text-anchor="middle" dominant-baseline="central">&amp; nature</text>
+        </g>
+
+        <!-- INFORMAL branch (left) -->
+        <line x1="264" y1="268" x2="155" y2="268" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="208" y="258" text-anchor="middle">Informal</text>
+        <g class="node c-green">
+          <rect x="60" y="246" width="95" height="44" rx="6"/>
+          <text class="th tgreen" x="107" y="268" text-anchor="middle" dominant-baseline="central">Manager coaching</text>
+        </g>
+        <line x1="107" y1="290" x2="107" y2="342" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="120" y="318">Coach</text>
+        <g class="node c-green">
+          <rect x="60" y="342" width="95" height="44" rx="6"/>
+          <text class="th tgreen" x="107" y="364" text-anchor="middle" dominant-baseline="central">Mediation session</text>
+        </g>
+        <line x1="107" y1="386" x2="107" y2="434" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="120" y="412">Mediate</text>
+        <g class="node c-green">
+          <polygon points="107,434 185,468 107,502 29,468"/>
+          <text class="th tgreen" x="107" y="461" text-anchor="middle" dominant-baseline="central">Agreement</text>
+          <text class="ts tgreen" x="107" y="477" text-anchor="middle" dominant-baseline="central">reached?</text>
+        </g>
+        <!-- Yes = resolved informally -->
+        <line x1="29" y1="468" x2="18" y2="468" stroke="#888" stroke-width="1.2"/>
+        <line x1="18" y1="468" x2="18" y2="590" stroke="#888" stroke-width="1.2"/>
+        <line x1="18" y1="590" x2="264" y2="590" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="13" y="520" text-anchor="middle" transform="rotate(-90,13,520)">Yes — resolved</text>
+        <!-- No = formal -->
+        <line x1="107" y1="502" x2="107" y2="545" stroke="#888" stroke-width="1.2"/>
+        <line x1="107" y1="545" x2="285" y2="545" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="120" y="528">No</text>
+
+        <!-- SERIOUS branch (right) -->
+        <line x1="456" y1="268" x2="560" y2="268" stroke="#C0392B" stroke-width="1.2" marker-end="url(#arr-red)"/>
+        <text class="ts tred" x="507" y="256" text-anchor="middle">Serious</text>
+        <g class="node c-red">
+          <rect x="560" y="246" width="115" height="44" rx="6"/>
+          <text class="th tred" x="617" y="268" text-anchor="middle" dominant-baseline="central">Suspend employee</text>
+        </g>
+        <line x1="617" y1="290" x2="617" y2="390" stroke="#C0392B" stroke-width="1.2" marker-end="url(#arr-red)"/>
+        <text class="ts tred" x="630" y="340">Immediate</text>
+        <g class="node c-red">
+          <rect x="560" y="390" width="115" height="44" rx="6"/>
+          <text class="th tred" x="617" y="412" text-anchor="middle" dominant-baseline="central">Urgent investigation</text>
+        </g>
+        <line x1="617" y1="434" x2="617" y2="710" stroke="#C0392B" stroke-width="1.2"/>
+        <line x1="617" y1="710" x2="458" y2="710" stroke="#C0392B" stroke-width="1.2" marker-end="url(#arr-red)"/>
+        <text class="ts tred" x="632" y="575" text-anchor="middle" transform="rotate(-90,632,575)">Escalate to hearing</text>
+
+        <!-- FORMAL branch (centre) -->
+        <line x1="360" y1="316" x2="360" y2="535" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="428">Formal</text>
+
+        <!-- FORMAL INVESTIGATION -->
+        <g class="node c-amber">
+          <rect x="280" y="535" width="160" height="44" rx="6"/>
+          <text class="th tamber" x="360" y="557" text-anchor="middle" dominant-baseline="central">Formal investigation</text>
+        </g>
+        <line x1="360" y1="579" x2="360" y2="622" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="604">Investigate</text>
+
+        <!-- EVIDENCE GATHERING -->
+        <g class="node c-amber">
+          <rect x="280" y="622" width="160" height="44" rx="6"/>
+          <text class="th tamber" x="360" y="644" text-anchor="middle" dominant-baseline="central">Evidence gathering</text>
+        </g>
+        <line x1="360" y1="666" x2="360" y2="692" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="682">Evidence</text>
+
+        <!-- DISCIPLINARY HEARING -->
+        <g class="node c-amber">
+          <rect x="280" y="692" width="160" height="44" rx="6"/>
+          <text class="th tamber" x="360" y="714" text-anchor="middle" dominant-baseline="central">Disciplinary hearing</text>
+        </g>
+        <line x1="360" y1="736" x2="360" y2="776" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="759">Hearing</text>
+
+        <!-- DETERMINE OUTCOME -->
+        <g class="node c-amber">
+          <polygon points="360,776 450,820 360,864 270,820"/>
+          <text class="th tamber" x="360" y="813" text-anchor="middle" dominant-baseline="central">Determine outcome</text>
+        </g>
+
+        <!-- Appeal loop -->
+        <path d="M450 820 L500 820 L500 714 L440 714" fill="none" stroke="#888" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+        <text class="ts" x="515" y="768" text-anchor="middle" transform="rotate(-90,515,768)">Appeal</text>
+
+        <!-- OUTCOME LETTER -->
+        <line x1="360" y1="864" x2="360" y2="910" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="890">Outcome</text>
+        <g class="node c-amber">
+          <rect x="280" y="910" width="160" height="44" rx="6"/>
+          <text class="th tamber" x="360" y="932" text-anchor="middle" dominant-baseline="central">Issue outcome letter</text>
+        </g>
+
+        <!-- Informal resolved joins here -->
+        <line x1="264" y1="590" x2="264" y2="960" stroke="#888" stroke-width="1.2"/>
+        <line x1="264" y1="960" x2="280" y2="960" stroke="#888" stroke-width="1.2"/>
+
+        <line x1="360" y1="954" x2="360" y2="1000" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="979">Issue</text>
+
+        <!-- HRIS SYNC -->
+        <g class="node c-purple">
+          <rect x="255" y="1000" width="210" height="44" rx="6"/>
+          <text class="th tpurple" x="360" y="1022" text-anchor="middle" dominant-baseline="central">HRIS sync &amp; documentation</text>
+        </g>
+        <line x1="360" y1="1044" x2="360" y2="1088" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="1068">Close / appeal?</text>
+
+        <!-- APPEAL OUTCOME DECISION -->
+        <g class="node c-amber">
+          <polygon points="360,1088 446,1128 360,1168 274,1128"/>
+          <text class="th tamber" x="360" y="1128" text-anchor="middle" dominant-baseline="central">Appeal upheld?</text>
+        </g>
+
+        <!-- Yes — close -->
+        <line x1="274" y1="1128" x2="185" y2="1128" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="228" y="1118" text-anchor="middle">Yes</text>
+        <g class="node c-green">
+          <rect x="90" y="1106" width="95" height="44" rx="6"/>
+          <text class="th tgreen" x="137" y="1128" text-anchor="middle" dominant-baseline="central">Decision revised</text>
+        </g>
+        <line x1="137" y1="1150" x2="137" y2="1190" stroke="#888" stroke-width="1.2"/>
+        <line x1="137" y1="1190" x2="264" y2="1190" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="200" y="1182" text-anchor="middle">Resolved</text>
+
+        <!-- No — ET referral path -->
+        <line x1="446" y1="1128" x2="540" y2="1128" stroke="#5B4FCF" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+        <text class="ts tpurple" x="492" y="1116" text-anchor="middle">No</text>
+        <g class="node c-purple">
+          <rect x="540" y="1106" width="130" height="44" rx="6"/>
+          <text class="th tpurple" x="605" y="1128" text-anchor="middle" dominant-baseline="central">ACAS Early</text>
+        </g>
+        <!-- ET text second line workaround -->
+        <text class="th tpurple" x="605" y="1145" text-anchor="middle" font-size="11" font-weight="600">Conciliation</text>
+        <line x1="605" y1="1150" x2="605" y2="1196" stroke="#5B4FCF" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+        <g class="node c-purple">
+          <rect x="540" y="1196" width="130" height="44" rx="6"/>
+          <text class="th tpurple" x="605" y="1218" text-anchor="middle" dominant-baseline="central">ET referral</text>
+        </g>
+        <line x1="605" y1="1240" x2="605" y2="1280" stroke="#5B4FCF" stroke-width="1.2"/>
+        <line x1="605" y1="1280" x2="444" y2="1280" stroke="#5B4FCF" stroke-width="1.2" marker-end="url(#arr-purple)"/>
+        <text class="ts tpurple" x="622" y="1262" transform="rotate(-90,622,1262)" text-anchor="middle">Legal team</text>
+
+        <!-- CASE CLOSED -->
+        <g class="node c-teal">
+          <rect x="280" y="1190" width="160" height="44" rx="22"/>
+          <text class="th tgreen" x="360" y="1212" text-anchor="middle" dominant-baseline="central">Case closed</text>
+        </g>
+        <line x1="360" y1="1234" x2="360" y2="1280" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text class="ts" x="374" y="1259">Closed</text>
+
+        <!-- ACAS NOTE -->
+        <text class="ts" x="360" y="1320" text-anchor="middle" fill="#A0AEC0" font-style="italic">ACAS Early Conciliation is mandatory before any ET claim can be submitted</text>
+        <text class="ts" x="360" y="1336" text-anchor="middle" fill="#A0AEC0" font-style="italic">(Employment Tribunals Act 1996 s.18A)</text>
+
+        <!-- LEGEND LABELS -->
+        <text class="ts" x="360" y="1370" text-anchor="middle" fill="#CBD5E0">— — — Appeal path (dashed)  ·  Purple = ET track</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#00B4A0"></div>Start / end / informal resolved</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#C97B00"></div>Decision / formal step</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#C0392B"></div>Serious / urgent action</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#5B4FCF"></div>ET pathway / ACAS conciliation</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#5B4FCF"></div>System / documentation</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STEPS={
+  start:{q:"What type of issue has been raised?",label:"Issue type",progress:30,type:"categories"},
+
+  /* ── CONDUCT ─────────────────────────────────── */
+  conduct_stage:{q:"Has a formal process already been initiated?",label:"Stage",progress:48,dot:"conduct",
+    options:[
+      {t:"First report — no formal action yet",next:"conduct_trigger"},
+      {t:"Formal process already open",next:"conduct_active"},
+      {t:"Gross misconduct or zero-tolerance breach",next:"out_formal_conduct_gross"}
+    ]},
+  conduct_trigger:{q:"Does any of the following apply?",label:"Escalation check",progress:65,dot:"conduct",
+    options:[
+      {t:"Second or repeated occurrence",next:"out_formal_conduct"},
+      {t:"Manager attempted informal conversation — unresolved",next:"out_formal_conduct"},
+      {t:"Employee has requested a formal process",next:"out_formal_conduct"},
+      {t:"Involves bullying, harassment, or discrimination",next:"out_formal_conduct_gross"},
+      {t:"None of the above — first minor issue",next:"out_informal_conduct"}
+    ]},
+  conduct_active:{q:"Where is the case currently?",label:"Case stage",progress:65,dot:"conduct",
+    options:[
+      {t:"Investigation in progress",next:"out_invest"},
+      {t:"Hearing or outcome pending",next:"out_hearing"},
+      {t:"Appeal lodged — internal",next:"out_appeal"},
+      {t:"Appeal exhausted — considering ET claim",next:"out_tribunal"}
+    ]},
+
+  /* ── GRIEVANCE ───────────────────────────────── */
+  grievance_stage:{q:"How has the issue been raised?",label:"Stage",progress:48,dot:"grievance",
+    options:[
+      {t:"Informal — verbally raised with manager or HR",next:"grievance_trigger"},
+      {t:"Formal written grievance submitted",next:"out_formal_grievance"},
+      {t:"Involves bullying, harassment, or discrimination",next:"out_formal_grievance_serious"},
+      {t:"Grievance outcome disputed — considering appeal or ET",next:"out_tribunal"}
+    ]},
+  grievance_trigger:{q:"Has the manager attempted to resolve this directly?",label:"Resolution attempt",progress:65,dot:"grievance",
+    options:[
+      {t:"No — first conversation still needed",next:"out_informal_grievance"},
+      {t:"Yes — attempt made but unresolved",next:"out_escalate_grievance"},
+      {t:"Employee refuses to engage informally",next:"out_formal_grievance"}
+    ]},
+
+  /* ── PERFORMANCE ─────────────────────────────── */
+  perf_stage:{q:"Has a Performance Improvement Plan (PIP) been opened?",label:"Stage",progress:48,dot:"perf",
+    options:[
+      {t:"No — concerns not yet formally documented",next:"perf_trigger"},
+      {t:"Yes — active PIP in place",next:"out_formal_perf"},
+      {t:"PIP completed — now considering capability dismissal",next:"out_formal_perf_serious"}
+    ]},
+  perf_trigger:{q:"Has the manager had documented conversations with the employee?",label:"Documentation check",progress:65,dot:"perf",
+    options:[
+      {t:"No documented discussions yet",next:"out_informal_perf"},
+      {t:"Yes — no improvement after two or more conversations",next:"out_escalate_perf"},
+      {t:"Specific policy threshold crossed",next:"out_formal_perf"}
+    ]},
+
+  /* ── ABSENCE ─────────────────────────────────── */
+  absence_stage:{q:"What is the nature of the absence concern?",label:"Absence type",progress:48,dot:"absence",
+    options:[
+      {t:"Short-term absence (under 7 days) — single occurrence",sub:"First episode, no prior trigger",next:"out_informal_absence_st"},
+      {t:"Short-term absence — trigger point reached",sub:"Bradford Factor or policy threshold crossed",next:"out_formal_absence_trigger"},
+      {t:"Pattern of absence (e.g. Mondays, pre/post-holiday)",sub:"Suspected avoidance pattern",next:"absence_pattern"},
+      {t:"Long-term sickness (2+ weeks) — ongoing",sub:"Continuous absence, fit note in place or required",next:"absence_lt_type"},
+      {t:"Long-term sickness — approaching capability threshold",sub:"12+ weeks, no clear return date",next:"out_formal_absence_lt_capability"}
+    ]},
+  absence_pattern:{q:"Has the employee been spoken to about the pattern?",label:"Prior discussion",progress:65,dot:"absence",
+    options:[
+      {t:"No — welfare conversation still needed",next:"out_informal_absence_st"},
+      {t:"Yes — pattern continues despite conversation",next:"out_formal_absence_trigger"}
+    ]},
+  absence_lt_type:{q:"What is the current status of the long-term absence?",label:"LTS status",progress:65,dot:"absence",
+    options:[
+      {t:"First welfare check needed — no contact yet",next:"out_lt_welfare"},
+      {t:"Welfare meetings ongoing — monitoring",next:"out_lt_monitoring"},
+      {t:"Occupational health referral required",next:"out_lt_oh"},
+      {t:"Reasonable adjustments discussion needed",next:"out_lt_adjustments"}
+    ]},
+
+  /* ── ACCOMMODATION ───────────────────────────── */
+  accommodation_stage:{q:"What type of accommodation or work environment concern is this?",label:"Concern type",progress:48,dot:"accommodation",
+    options:[
+      {t:"Flexible working request (statutory or informal)",next:"out_flexible_work"},
+      {t:"Disability or health-related adjustment",next:"out_disability_adjust"},
+      {t:"Religious accommodation",next:"out_informal_accommodation"},
+      {t:"Maternity, paternity, or parental leave query",next:"out_parental_leave"},
+      {t:"Work environment or safety concern",next:"out_work_environment"},
+      {t:"Discrimination, harassment, or unfair treatment allegation",next:"out_formal_grievance_serious"}
+    ]},
+
+  /* ─────── OUTCOMES ─────── */
+  out_informal_conduct:{type:"outcome",tone:"informal",progress:100,title:"Informal management action",
+    body:"Support the manager to hold a clear, documented conversation with the employee. Agree expectations in writing and set a review date. Retain a brief note on file.",
+    actions:["Manager-led documented conversation","Written expectations agreed","Review date set","HR coaching to manager","Note on file retained"]},
+
+  out_formal_conduct:{type:"outcome",tone:"formal",progress:100,title:"Formal disciplinary process",
+    body:"Initiate formal disciplinary proceedings per the ACAS Code of Practice. Appoint an investigating manager independent of the complaint. Issue written notice of the investigation and timeframe. Consider interim measures if required.",
+    actions:["Appoint independent investigating manager","Issue written investigation notice","Assess interim measures","ACAS Code of Practice applies","Right to be accompanied at all stages"]},
+
+  out_formal_conduct_gross:{type:"outcome",tone:"formal",progress:100,title:"Gross misconduct — immediate formal action",
+    body:"Allegations of gross misconduct or zero-tolerance breaches (e.g. harassment, violence, fraud) require immediate formal investigation. Consider precautionary suspension (paid, non-punitive) and involve Senior HR and legal as appropriate. The Equality Act 2010 must be considered where protected characteristics are involved.",
+    actions:["Precautionary suspension (paid)",  "Senior HR and legal involvement","Immediate investigation scope","Equality Act 2010 review","Witness protection measures"]},
+
+  out_invest:{type:"outcome",tone:"formal",progress:100,title:"Investigation in progress",
+    body:"Ensure the investigating manager has a clear scope, witness list, and realistic timeline (target: within 4 weeks). Maintain an evidence bundle and keep all parties updated on progress without prejudicing the investigation.",
+    actions:["Scope, timeline, and witnesses confirmed","Structured interview notes","Evidence bundle maintained","Target: 4 weeks","Regular update to all parties"]},
+
+  out_hearing:{type:"outcome",tone:"formal",progress:100,title:"Disciplinary or grievance hearing",
+    body:"Confirm the employee has received the full investigation pack with at least 48 hours notice. Verify the hearing panel is independent, a note-taker is confirmed, and the employee's right to be accompanied is confirmed in writing.",
+    actions:["48hr notice with full pack","Right to be accompanied confirmed","Independent note-taker","Outcome letter prepared","Clear appeal rights communicated"]},
+
+  out_appeal:{type:"outcome",tone:"escalate",progress:100,title:"Internal appeal — escalate to senior panel",
+    body:"Appeals must be heard by a manager more senior than the original decision-maker, who was not involved in the original hearing. Legal advice is strongly recommended where the original outcome was dismissal. Acknowledge receipt within 5 working days.",
+    actions:["Senior panel — not involved in original hearing","Acknowledge within 5 working days","Legal review if original outcome was dismissal","Full re-consideration of evidence","Written outcome with ET rights noted"]},
+
+  out_tribunal:{type:"outcome",tone:"tribunal",progress:100,title:"Employment Tribunal pathway — legal referral required",
+    body:"ACAS Early Conciliation is a mandatory prerequisite before any Employment Tribunal claim can be submitted (Employment Tribunals Act 1996, s.18A). The HR function does not manage ET proceedings directly — this must be escalated to the organisation's legal team or external employment solicitors. HR's role at this stage is to ensure all documentation is complete, consistent, and legally defensible.",
+    actions:["Immediate legal team referral","ACAS Early Conciliation mandatory first","Full case file prepared for legal review","No direct communication with claimant without legal sign-off","Document audit — consistency check across all records"]},
+
+  out_informal_grievance:{type:"outcome",tone:"informal",progress:100,title:"Informal resolution — managed conversation",
+    body:"Facilitate a structured conversation between the parties. Agree a resolution plan in writing. Consider mediation if direct resolution is not achievable within two weeks.",
+    actions:["Structured managed conversation","Written resolution plan","Mediation if needed","Follow-up review in 2 weeks","Record kept on file"]},
+
+  out_escalate_grievance:{type:"outcome",tone:"escalate",progress:100,title:"Escalate to formal grievance",
+    body:"Informal resolution has been attempted without success. Advise the individual of their right to raise a formal written grievance and issue the formal process steps.",
+    actions:["Written grievance invitation issued","Formal hearing within 2 weeks of receipt","Independent hearing panel","Right to be accompanied","Written outcome and full appeal rights"]},
+
+  out_formal_grievance:{type:"outcome",tone:"formal",progress:100,title:"Formal grievance process",
+    body:"Acknowledge the written grievance within 3 working days. Appoint an independent investigating manager who was not involved in the events complained of. Issue a written outcome with full appeal rights.",
+    actions:["Acknowledge within 3 working days","Independent investigator appointed","Formal hearing arranged","Written outcome issued","Full appeal rights communicated"]},
+
+  out_formal_grievance_serious:{type:"outcome",tone:"formal",progress:100,title:"Serious grievance — immediate formal action",
+    body:"Allegations of bullying, harassment, or discrimination require immediate formal investigation. Consider interim separation of the parties and review Equality Act 2010 implications, including protected characteristics. Senior HR and legal involvement is recommended.",
+    actions:["Immediate investigation initiated","Interim separation of parties considered","Senior HR and legal involvement","Equality Act 2010 review","Named contacts identified for claimant support"]},
+
+  out_informal_perf:{type:"outcome",tone:"informal",progress:100,title:"Informal performance support",
+    body:"Coach the manager to hold a clear, supportive conversation with the employee. Set SMART objectives and agree a review date. Retain a brief note of the discussion.",
+    actions:["SMART objectives set","Manager-led support plan","Documented conversation note","Review meeting in 4 weeks","Signpost to L&D if relevant"]},
+
+  out_escalate_perf:{type:"outcome",tone:"escalate",progress:100,title:"Escalate to formal Performance Improvement Plan",
+    body:"Initiate a formal Performance Improvement Plan with clear measurable targets and a defined review period of 4 to 12 weeks. The PIP must be realistic, supported, and reviewed regularly.",
+    actions:["Formal PIP document issued","Measurable, achievable targets","4–12 week review period","Support and training identified","Right of appeal noted"]},
+
+  out_formal_perf:{type:"outcome",tone:"formal",progress:100,title:"Active PIP — structured formal review",
+    body:"Ensure review meetings are documented and that agreed support is being provided. If targets are not met by the end of the PIP period, prepare for a capability hearing.",
+    actions:["Regular documented review meetings","Support clearly evidenced","Prepare for capability hearing if required","Legal consult before any capability dismissal","Full appeal rights"]},
+
+  out_formal_perf_serious:{type:"outcome",tone:"formal",progress:100,title:"Capability hearing — senior HR and legal required",
+    body:"Before initiating a capability hearing, ensure all support options have been exhausted and thoroughly documented. Consult Senior HR and legal. The ACAS Code of Practice on discipline and grievance applies.",
+    actions:["Full documentation reviewed","Senior HR and legal consultation","ACAS Code compliance confirmed","Capability hearing arranged","Full appeal rights communicated"]},
+
+  /* ABSENCE OUTCOMES */
+  out_informal_absence_st:{type:"outcome",tone:"informal",progress:100,title:"Return-to-work conversation — short-term absence",
+    body:"Hold a brief return-to-work (RTW) conversation on the employee's first day back. This is informal, supportive, and non-punitive. Record a brief note. Monitor for recurring short-term absence patterns.",
+    actions:["RTW conversation on first day back","Brief supportive note on record","Wellbeing check-in completed","Monitor for patterns","No formal action at this stage"]},
+
+  out_formal_absence_trigger:{type:"outcome",tone:"formal",progress:100,title:"Formal attendance management — trigger point reached",
+    body:"A Bradford Factor or policy trigger point has been reached. Issue a formal attendance management letter and arrange a review meeting. The employee has the right to be accompanied. An occupational health referral should be considered.",
+    actions:["Formal attendance management letter issued","Review meeting arranged","Right to be accompanied confirmed","Occupational health referral considered","Monitoring period and targets set"]},
+
+  out_lt_welfare:{type:"outcome",tone:"informal",progress:100,title:"Long-term sickness — initial welfare check",
+    body:"Make contact with the employee to complete a welfare check. This is a supportive, non-judgmental conversation. Request a fit note if not already received. Discuss any anticipated return date.",
+    actions:["Welfare call or visit completed","Fit note requested if absent 7+ days","Supportive conversation documented","Anticipated return date explored","No pressure on return at this stage"]},
+
+  out_lt_monitoring:{type:"outcome",tone:"escalate",progress:100,title:"Long-term sickness — ongoing welfare monitoring",
+    body:"Schedule regular welfare meetings (suggested: fortnightly or monthly depending on absence length). Keep records of all contact. Begin to consider whether an occupational health referral is appropriate and whether any reasonable adjustments may assist an earlier return.",
+    actions:["Regular welfare meetings scheduled","All contact documented","OH referral timetable considered","Reasonable adjustments explored","Fit notes maintained on record"]},
+
+  out_lt_oh:{type:"outcome",tone:"escalate",progress:100,title:"Long-term sickness — occupational health referral",
+    body:"Request consent from the employee and refer to occupational health (OH). The OH report will advise on fitness to work, reasonable adjustments, and likely return dates. A phased return plan may be recommended.",
+    actions:["Employee consent obtained","OH referral submitted","OH report reviewed with employee","Reasonable adjustments identified","Phased return plan if recommended"]},
+
+  out_lt_adjustments:{type:"outcome",tone:"escalate",progress:100,title:"Long-term sickness — reasonable adjustments required",
+    body:"The Equality Act 2010 requires employers to consider reasonable adjustments where a condition may amount to a disability. Consult with the employee, OH, and if necessary, legal, before making any decisions about the employee's role or employment status.",
+    actions:["Reasonable adjustments assessed","Equality Act 2010 duty considered","Adjustments implemented where practicable","Legal consult if any dismissal considered","Decision fully documented"]},
+
+  out_formal_absence_lt_capability:{type:"outcome",tone:"formal",progress:100,title:"Long-term sickness — capability process",
+    body:"Where an employee is unable to return within a reasonable period, a capability process may be initiated after all other options have been exhausted. This must follow the ACAS Code of Practice. Consult Senior HR and legal before any decision is made. The Equality Act 2010 duty applies throughout.",
+    actions:["Full welfare and OH records reviewed","Senior HR and legal consultation","ACAS Code compliance confirmed","Capability hearing with right to be accompanied","ET risk assessed before any dismissal"]},
+
+  /* ACCOMMODATION OUTCOMES */
+  out_flexible_work:{type:"outcome",tone:"informal",progress:100,title:"Flexible working request — statutory or informal",
+    body:"Employees with 26+ weeks' service have a statutory right to request flexible working (Employment Relations (Flexible Working) Act 2023). The request must be considered seriously and decided within 2 months. Any refusal must be for a valid business reason.",
+    actions:["Acknowledge request in writing","Business impact assessment completed","Decision within 2 months","If refused: valid business reason documented","Right of appeal if refused"]},
+
+  out_disability_adjust:{type:"outcome",tone:"escalate",progress:100,title:"Disability-related adjustment — Equality Act duty",
+    body:"Where a condition may amount to a disability under the Equality Act 2010, the employer has a duty to consider reasonable adjustments. Consult OH and involve Senior HR. Document all steps taken.",
+    actions:["Equality Act 2010 duty assessed","OH referral arranged","Adjustments identified and costed","Adjustments implemented where practicable","Decision fully documented"]},
+
+  out_informal_accommodation:{type:"outcome",tone:"informal",progress:100,title:"Informal accommodation — agreed",
+    body:"Discuss the accommodation needed with the employee and their line manager. Agree practical steps in writing. Review in 4 weeks.",
+    actions:["Conversation completed","Practical steps agreed in writing","Line manager briefed","Review date set"]},
+
+  out_parental_leave:{type:"outcome",tone:"informal",progress:100,title:"Parental or family leave — statutory entitlement",
+    body:"Review the employee's statutory entitlement: maternity (up to 52 weeks), paternity (up to 2 weeks), shared parental leave, adoption leave, or parental bereavement leave. Issue the correct notice and confirm the leave plan in writing.",
+    actions:["Statutory entitlement confirmed","Written leave plan issued","KIT/SPLIT days discussed if applicable","Payroll notified","Return-to-work plan discussed"]},
+
+  out_work_environment:{type:"outcome",tone:"escalate",progress:100,title:"Work environment or safety concern",
+    body:"Safety concerns must be assessed without delay. Conduct a risk assessment if appropriate. Where the concern relates to a specific individual's behaviour, consider whether a grievance or conduct process is more appropriate.",
+    actions:["Risk assessment completed if required","Immediate mitigation if safety risk","Manager briefed","Formal referral if conduct issue","Follow-up in 5 working days"]}
+};
+
+const CATS=[
+  {key:"conduct",name:"Conduct & disciplinary",desc:"Misconduct, behaviour, zero-tolerance breaches, harassment",cls:"conduct",next:"conduct_stage",
+   icon:`<svg viewBox="0 0 18 18" fill="none" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round"><path d="M9 2v8M9 13v1"/><circle cx="9" cy="9" r="7"/></svg>`},
+  {key:"grievance",name:"Grievance & conflict",desc:"Complaints, interpersonal conflict, unfair treatment",cls:"grievance",next:"grievance_stage",
+   icon:`<svg viewBox="0 0 18 18" fill="none" stroke="#C97B00" stroke-width="1.5" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="M6.5 7.5C6.5 6 8 5 9.5 5.5S11.5 8 9 9v1.5M9 13v.5"/></svg>`},
+  {key:"perf",name:"Performance & capability",desc:"Underperformance, PIPs, capability concerns",cls:"perf",next:"perf_stage",
+   icon:`<svg viewBox="0 0 18 18" fill="none" stroke="#0E7A5F" stroke-width="1.5" stroke-linecap="round"><polyline points="3,13 7,8 10,11 15,5"/></svg>`},
+  {key:"absence",name:"Attendance & absence",desc:"Short-term, long-term sickness, trigger points, patterns",cls:"absence",next:"absence_stage",
+   icon:`<svg viewBox="0 0 18 18" fill="none" stroke="#1A6FB5" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="12" height="11" rx="2"/><path d="M3 8h12M7 2v3M11 2v3"/></svg>`},
+  {key:"accommodation",name:"Accommodations & work environment",desc:"Flexible working, disability, parental leave, safety",cls:"accommodation",next:"accommodation_stage",
+   icon:`<svg viewBox="0 0 18 18" fill="none" stroke="#5B4FCF" stroke-width="1.5" stroke-linecap="round"><circle cx="9" cy="6" r="2.5"/><path d="M4 15c0-3 2-5 5-5s5 2 5 5"/></svg>`}
+];
+
+let history=[],current="intake",caseData={},outcomeData={},outcomeKey="",submitted=false;
+
+function genRef(){
+  const d=new Date();
+  return"ER-"+d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")+"-"+Math.floor(100+Math.random()*900);
+}
+function switchTab(t){
+  document.getElementById("tab-triage").classList.toggle("active",t==="triage");
+  document.getElementById("tab-flow").classList.toggle("active",t==="flow");
+  document.getElementById("tab-about").classList.toggle("active",t==="about");
+  document.getElementById("panel-triage").style.display=t==="triage"?"block":"none";
+  document.getElementById("panel-flow").style.display=t==="flow"?"block":"none";
+  document.getElementById("panel-about").style.display=t==="about"?"block":"none";
+}
+function bcRender(){
+  const el=document.getElementById("bc");
+  if(!el)return;
+  const stages=[{key:"intake",label:"Case details"},{key:"start",label:"Issue type"},{key:"triage",label:"Triage"},{key:"outcome",label:"Outcome"}];
+  const ai=current==="intake"?0:current==="start"?1:STEPS[current]?.type==="outcome"?3:2;
+  el.innerHTML=stages.map((s,i)=>{
+    if(i<ai)return`<span class="bc-i">${s.label}</span><span class="bc-s"> › </span>`;
+    if(i===ai)return`<span class="bc-a">${s.label}</span>`;
+    return"";
+  }).join("");
+}
+function render(){
+  if(current==="intake"){renderIntake();return;}
+  if(submitted){renderSuccess();return;}
+  const s=STEPS[current];
+  document.getElementById("prog").style.width=(s?.progress||0)+"%";
+  bcRender();
+  const c=document.getElementById("content");
+  if(current==="start"){
+    c.innerHTML=`
+      <div class="ref-badge"><span class="ref-dot"></span>Case ${caseData.ref} · ${caseData.anonymous?"Anonymous":caseData.claimant}</div>
+      <div class="step-hdr">Step 2 of 4 — Issue type</div>
+      <div class="step-q">${s.q}</div>
+      <div class="cat-grid">${CATS.map(cat=>`<div class="cat-card ${cat.cls}" onclick="choose('${cat.next}','${cat.name}','${cat.key}')"><div class="cat-icon">${cat.icon}</div><div class="cat-name">${cat.name}</div><div class="cat-desc">${cat.desc}</div></div>`).join("")}</div>
+      <div class="nav-row"><button class="back-btn" onclick="goIntake()">‹ Edit case details</button><button class="rst-btn" onclick="restart()">↺ Restart</button></div>`;
+    return;
+  }
+  if(s.type==="outcome"){
+    outcomeData=s;
+    outcomeKey=current;
+    const toneLabel={formal:"Formal process required",escalate:"Escalate — senior HR involvement",informal:"Informal action",tribunal:"Employment Tribunal pathway"};
+    const toneIcon={formal:"■",escalate:"▲",informal:"●",tribunal:"⚖"};
+    const rd={formal:"ER Case Management System",escalate:"Senior HR & ER Queue",informal:"Manager Action Log",tribunal:"Legal Team — ET Track"};
+    const tl=toneLabel[s.tone]||"Triage outcome";
+    c.innerHTML=`
+      <div class="ref-badge"><span class="ref-dot"></span>Case ${caseData.ref} · ${caseData.anonymous?"Anonymous":caseData.claimant}</div>
+      <div class="step-hdr">Step 4 of 4 — Outcome</div>
+      <div class="out-wrap ${s.tone}">
+        <div class="out-hdr"><div class="out-tag">${toneIcon[s.tone]||"●"} ${tl}</div><div class="out-title">${s.title}</div><div class="out-body">${s.body}</div></div>
+        <div class="out-actions"><div class="out-alabel">Recommended next steps</div><div class="chips">${s.actions.map(a=>`<span class="chip">${a}</span>`).join("")}</div></div>
+      </div>
+      ${cxHTML(outcomeKey)}
+      <div class="sub-card">
+        <div class="sub-title">Ready to log this case?</div>
+        <div class="sub-sub">Details and triage outcome will be recorded and routed to <strong>${rd[s.tone]||"ER Queue"}</strong>.</div>
+        <div class="sum-grid">
+          <div class="si"><div class="si-l">Employee</div><div class="si-v">${caseData.anonymous?"Anonymous":caseData.claimant}</div></div>
+          <div class="si"><div class="si-l">Employee ID</div><div class="si-v">${caseData.anonymous?"Restricted":caseData.empId}</div></div>
+          <div class="si"><div class="si-l">Other party</div><div class="si-v">${caseData.respondent}</div></div>
+          <div class="si"><div class="si-l">Department</div><div class="si-v">${caseData.dept}</div></div>
+          <div class="si"><div class="si-l">Date of incident</div><div class="si-v">${caseData.dateIncident}</div></div>
+          <div class="si"><div class="si-l">Time of incident</div><div class="si-v">${caseData.timeIncident}</div></div>
+          <div class="si"><div class="si-l">How raised</div><div class="si-v">${caseData.reportedBy}</div></div>
+          <div class="si"><div class="si-l">Date logged</div><div class="si-v">${caseData.date}</div></div>
+          <div class="si"><div class="si-l">Anonymity requested</div><div class="si-v">${caseData.anonymous?"Yes — identity restricted":"No"}</div></div>
+        </div>
+        <div class="sub-acts">
+          <button class="pri-btn" onclick="submitCase()">Submit to ${rd[s.tone]||"ER Queue"} →</button>
+          <button class="rst-btn" onclick="dlSummary()">↓ Download summary</button>
+        </div>
+      </div>
+      <div class="disc">This framework is a practice guide developed by Sneha Manjunath. Always apply professional judgement and refer to your organisation's policies and the ACAS Code of Practice. For Employment Tribunal matters, refer immediately to qualified legal counsel.</div>
+      <div class="nav-row" style="margin-top:10px"><button class="back-btn" onclick="goBack()">‹ Back</button><button class="rst-btn" onclick="restart()">↺ New case</button></div>`;
+    return;
+  }
+  const n=history.length+2;
+  const dc="dot-"+(s.dot||"neutral");
+  const isFirstStep=current==="conduct_stage"||current==="grievance_stage"||current==="perf_stage"||current==="absence_stage"||current==="accommodation_stage";
+  const mgrBanner=isFirstStep?`<div class="mgr-banner"><span class="mgr-banner-icon">💡</span><div class="mgr-banner-text"><strong>For line managers:</strong> Select the option that best describes where this case sits right now. If you're not sure, choose the earliest stage — HR will review and re-route if needed.</div></div>`:"";
+  c.innerHTML=`
+    <div class="ref-badge"><span class="ref-dot"></span>Case ${caseData.ref} · ${caseData.anonymous?"Anonymous":caseData.claimant}</div>
+    <div class="step-hdr">Step ${n} of 4 — ${s.label||""}</div>
+    <div class="step-q">${s.q}</div>
+    ${mgrBanner}
+    <div class="opt-list">${s.options.map(o=>`<button class="opt-btn" onclick="choose('${o.next}',\`${o.t.replace(/`/g,"'")}\`,'')"><span class="opt-dot ${dc}"></span><div><span class="opt-text">${o.t}</span>${o.sub?`<div class="opt-sub">${o.sub}</div>`:""}</div></button>`).join("")}</div>
+    <div class="nav-row"><button class="back-btn" onclick="goBack()">‹ Back</button><button class="rst-btn" onclick="restart()">↺ Restart</button></div>`;
+}
+function renderIntake(){
+  document.getElementById("prog").style.width="10%";
+  bcRender();
+  document.getElementById("content").innerHTML=`
+    <div class="intake-banner">
+      <span class="intake-banner-icon">👋</span>
+      <div class="intake-banner-text"><strong>Manager portal — raise a people concern</strong><br>Fill in what you know. Use plain language — no HR terminology needed. Your submission goes directly and confidentially to the HR queue.</div>
+    </div>
+    <div class="step-hdr">Step 1 of 3 — Case details</div>
+    <div class="step-q">Who is this about and what happened?</div>
+    <div class="field-group">
+
+      <div class="field-row">
+        <div>
+          <div class="flabel">Employee name<span>*</span></div>
+          <input class="finput" id="f-cl" placeholder="Full name" value="${caseData.claimant||''}">
+          <div class="flabel-hint">The person the concern is about</div>
+        </div>
+        <div>
+          <div class="flabel">Employee ID<span>*</span></div>
+          <input class="finput" id="f-eid" placeholder="e.g. EMP-00421" value="${caseData.empId||''}">
+          <div class="flabel-hint">Used to link this case to the employee's HR record</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <div class="flabel">Other party involved</div>
+          <input class="finput" id="f-re" placeholder="Name or leave blank" value="${caseData.respondent||''}">
+          <div class="flabel-hint">Person alleged to have caused the issue, if applicable</div>
+        </div>
+        <div>
+          <div class="flabel">Department / team<span>*</span></div>
+          <input class="finput" id="f-dp" placeholder="e.g. Operations, Finance" value="${caseData.dept||''}">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <div class="flabel">Date the issue occurred<span>*</span></div>
+          <input class="finput" id="f-di" type="date" value="${caseData.dateIncident||''}">
+          <div class="flabel-hint">When it happened, not when you're reporting it</div>
+        </div>
+        <div>
+          <div class="flabel">Approximate time of incident</div>
+          <input class="finput" id="f-ti" type="time" value="${caseData.timeIncident||''}">
+          <div class="flabel-hint">Leave blank if unknown or ongoing</div>
+        </div>
+      </div>
+
+      <div>
+          <div class="flabel">How did this come to your attention?<span>*</span></div>
+          <select class="fselect" id="f-rb">
+            <option value="">Select...</option>
+            <optgroup label="Employee raised it">
+              <option ${caseData.reportedBy==="Employee raised it with me directly"?"selected":""}>Employee raised it with me directly</option>
+              <option ${caseData.reportedBy==="Employee contacted HR directly"?"selected":""}>Employee contacted HR directly</option>
+            </optgroup>
+            <optgroup label="Someone else flagged it">
+              <option ${caseData.reportedBy==="Colleague or witness"?"selected":""}>Colleague or witness</option>
+              <option ${caseData.reportedBy==="Trade union representative"?"selected":""}>Trade union representative</option>
+              <option ${caseData.reportedBy==="Occupational health"?"selected":""}>Occupational health</option>
+              <option ${caseData.reportedBy==="Identified by HR during a review or conversation"?"selected":""}>Identified by HR during a review or conversation</option>
+            </optgroup>
+            <optgroup label="Anonymous">
+              <option ${caseData.reportedBy==="Anonymous report"?"selected":""}>Anonymous report</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div class="flabel">Brief description<span>*</span></div>
+        <textarea class="finput" id="f-desc" rows="3" placeholder="Describe what happened in 2–3 sentences. Plain language is fine — HR will follow up for more detail." style="resize:vertical;line-height:1.6">${caseData.description||""}</textarea>
+        <div class="flabel-hint">Do not include medical details, protected characteristics, or third-party personal data unless directly relevant</div>
+      </div>
+
+      <label class="anon-row">
+        <input type="checkbox" id="f-an" ${caseData.anonymous?"checked":""}>
+        <div>
+          <span class="anon-txt">The employee has requested anonymity</span>
+          <div class="flabel-hint" style="margin-top:2px">Their identity will be restricted to the HR case handler only</div>
+        </div>
+        <span class="anon-sub">GDPR — restricted</span>
+      </label>
+
+    </div>
+    <div id="ierr" class="err" style="display:none">Please complete all required fields marked *</div>
+    <div class="nav-row">
+      <span></span>
+      <button class="pri-btn" onclick="submitIntake()">Continue to triage →</button>
+    </div>`;
+}
+
+function submitIntake(){
+  const cl=document.getElementById("f-cl").value.trim();
+  const eid=document.getElementById("f-eid").value.trim();
+  const dp=document.getElementById("f-dp").value.trim();
+  const di=document.getElementById("f-di").value;
+  const ti=document.getElementById("f-ti").value;
+  const rb=document.getElementById("f-rb").value;
+  const desc=document.getElementById("f-desc").value.trim();
+  if(!cl||!eid||!dp||!di||!rb||!desc){
+    document.getElementById("ierr").style.display="block";return;
+  }
+  const timeLabel=ti?new Date("1970-01-01T"+ti).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"Not recorded";
+  caseData={
+    claimant:cl,
+    empId:eid,
+    respondent:document.getElementById("f-re").value.trim()||"Not specified",
+    dept:dp,
+    dateIncident:new Date(di).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}),
+    timeIncident:timeLabel,
+    reportedBy:rb,
+    description:desc,
+    anonymous:document.getElementById("f-an").checked,
+    ref:genRef(),
+    date:new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})
+  };
+  current="start";history=[];render();
+}
+function renderSuccess(){
+  document.getElementById("prog").style.width="100%";
+  bcRender();
+  const rd={formal:"ER Case Management System",escalate:"ER Case Management System",informal:"ER Case Management System",tribunal:"ER Case Management System"};
+  document.getElementById("content").innerHTML=`
+    <div class="suc-screen">
+      <div class="suc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0E7A5F" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <div class="suc-title">Case submitted successfully</div>
+      <div class="suc-sub">Your concern has been logged confidentially and is now in the HR queue.</div>
+      <div class="suc-ref">${caseData.ref}</div>
+      <div class="route-row">
+        <span class="rpill">Case logged</span>
+        <span class="rarr">→</span>
+        <span class="rpill">Triage complete</span>
+        <span class="rarr">→</span>
+        <span class="rpill active">HR queue</span>
+      </div>
+      <div class="suc-info-box">
+        <div class="suc-info-row"><span class="suc-info-icon">🔒</span><span>This case is confidential. Keep any supporting information secure and do not discuss it with other employees.</span></div>
+        <div class="suc-info-row"><span class="suc-info-icon">📋</span><span>Save your case reference number: <strong>${caseData.ref}</strong>. You may need it if HR contacts you.</span></div>
+        <div class="suc-info-row"><span class="suc-info-icon">📞</span><span>Your HR team will be in touch. If the matter is urgent, contact HR directly and quote your case reference.</span></div>
+      </div>
+      <button class="rst-btn" style="font-size:12px;padding:8px 20px;margin-top:8px" onclick="restart()">Submit another case</button>
+    </div>`;
+}
+function submitCase(){submitted=true;render();}
+function dlSummary(){
+  const s=outcomeData;
+  const cx=getComplexity(outcomeKey);
+  const tl={formal:"Formal process required",escalate:"Escalate — senior HR",informal:"Informal action",tribunal:"Employment Tribunal pathway"}[s.tone]||"Outcome";
+  const txt=`ER CASE SUMMARY\n${"═".repeat(50)}\nReference:        ${caseData.ref}\nDate logged:      ${caseData.date}\n\nCASE DETAILS\n${"─".repeat(50)}\nEmployee:         ${caseData.anonymous?"Anonymous":caseData.claimant}\nEmployee ID:      ${caseData.anonymous?"Restricted":caseData.empId}\nOther party:      ${caseData.respondent}\nDepartment:       ${caseData.dept}\nDate of incident: ${caseData.dateIncident}\nTime of incident: ${caseData.timeIncident}\nHow raised:       ${caseData.reportedBy}\nAnonymity:        ${caseData.anonymous?"Yes — identity restricted":"No"}\n\nManager description:\n${caseData.description||"Not provided"}\n\nTRIAGE OUTCOME\n${"─".repeat(50)}\nClassification:    ${tl}\nOutcome:           ${s.title}\n\nComplexity score:  ${cx.score} — ${cx.title}\nEst. HR time:      ${cx.time}\n${cx.desc}\n\nGuidance:\n${s.body}\n\nNext steps:\n${s.actions.map(a=>"  • "+a).join("\n")}\n\n${"═".repeat(50)}\nER Triage Framework · Sneha Manjunath\nFor practice purposes only.\nAlways refer to the ACAS Code of Practice and applicable company policy.\nEmployment Tribunal matters must be referred to qualified legal counsel.`;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"}));
+  a.download=`${caseData.ref}-triage-summary.txt`;a.click();
+}
+function choose(next,label,key){history.push({step:current,chosen:label,key});current=next;render();}
+function goBack(){if(!history.length){current="start";render();return;}const l=history.pop();current=l.step;render();}
+function goIntake(){history=[];current="intake";render();}
+function restart(){history=[];current="intake";submitted=false;outcomeData={};outcomeKey="";render();}
+
+/* ── COMPLEXITY SCORING ───────────────────────── */
+const COMPLEXITY={
+  out_informal_conduct:    {level:"low",    score:"L1",title:"Low complexity",          time:"1–2 hrs",    desc:"Manager-led with light HR coaching. Resolves within 1–2 weeks without formal process."},
+  out_formal_conduct:      {level:"high",   score:"H2",title:"High complexity",         time:"8–15 hrs",   desc:"Full disciplinary process: investigation, hearing, outcome letter, possible appeal. Allow 4–8 weeks."},
+  out_formal_conduct_gross:{level:"high",   score:"H3",title:"High complexity — urgent",time:"15–30 hrs",  desc:"Gross misconduct or zero-tolerance breach. Suspension decision required. Legal consultation likely."},
+  out_invest:              {level:"high",   score:"H2",title:"High complexity",         time:"8–15 hrs",   desc:"Active investigation. Scope, evidence, and witness management. Target completion within 4 weeks."},
+  out_hearing:             {level:"high",   score:"H2",title:"High complexity",         time:"5–10 hrs",   desc:"Hearing preparation, panel coordination, note-taking, outcome letter. Allow 1–2 weeks post-investigation."},
+  out_appeal:              {level:"high",   score:"H3",title:"High complexity",         time:"10–20 hrs",  desc:"Internal appeal. Senior panel, legal review if dismissal was original outcome. Acknowledge within 5 days."},
+  out_tribunal:            {level:"critical",score:"ET",title:"Critical — legal track", time:"Legal team leads", desc:"ET pathway. ACAS Early Conciliation is mandatory before any claim. Statutory time limit: 3 months less one day from date of act (Employment Tribunals Act 1996). HR role: documentation and support only."},
+  out_informal_grievance:  {level:"low",    score:"L1",title:"Low complexity",          time:"1–3 hrs",    desc:"Managed conversation and written plan. Aim to resolve within 2 weeks."},
+  out_escalate_grievance:  {level:"medium", score:"M2",title:"Medium complexity",       time:"3–6 hrs",    desc:"Formal grievance process initiated. Panel, hearing, written outcome with appeal rights. Allow 3–4 weeks."},
+  out_formal_grievance:    {level:"high",   score:"H2",title:"High complexity",         time:"8–15 hrs",   desc:"Full formal grievance. Independent investigator, formal hearing, written outcome. Allow 4–6 weeks."},
+  out_formal_grievance_serious:{level:"high",score:"H3",title:"High complexity — urgent",time:"15–30 hrs", desc:"Serious grievance — bullying, harassment, or discrimination. Urgent. Legal and senior HR essential."},
+  out_informal_perf:       {level:"low",    score:"L1",title:"Low complexity",          time:"1–2 hrs",    desc:"Informal performance support. Manager coaching and SMART objectives. Review in 4 weeks."},
+  out_escalate_perf:       {level:"medium", score:"M2",title:"Medium complexity",       time:"4–8 hrs",    desc:"Formal PIP: creation, support plan, regular review meetings. Allow 4–12 weeks per PIP cycle."},
+  out_formal_perf:         {level:"high",   score:"H2",title:"High complexity",         time:"8–15 hrs",   desc:"Active PIP management. Documented reviews, support evidence, capability hearing preparation if required."},
+  out_formal_perf_serious: {level:"high",   score:"H3",title:"High complexity",         time:"15–25 hrs",  desc:"Capability hearing. Full documentation review, legal consultation, ACAS compliance. Allow 6–10 weeks."},
+  out_informal_absence_st: {level:"low",    score:"L0",title:"Low complexity",          time:"0.5–1 hr",   desc:"Return-to-work conversation. Brief, supportive, same-day action on first day back."},
+  out_formal_absence_trigger:{level:"medium",score:"M1",title:"Medium complexity",      time:"2–5 hrs",    desc:"Formal attendance management: letter, review meeting, possible OH referral. Allow 2 weeks."},
+  out_lt_welfare:          {level:"medium", score:"M1",title:"Medium complexity",       time:"1–3 hrs",    desc:"Initial long-term absence welfare check. Fit note, supportive contact, return date explored."},
+  out_lt_monitoring:       {level:"medium", score:"M2",title:"Medium complexity",       time:"3–6 hrs",    desc:"Ongoing welfare monitoring. Regular meetings, OH consideration, documentation of all contact."},
+  out_lt_oh:               {level:"medium", score:"M2",title:"Medium complexity",       time:"4–8 hrs",    desc:"OH referral: consent, referral, report review, adjustments discussion. Allow 4–6 weeks for report."},
+  out_lt_adjustments:      {level:"high",   score:"H1",title:"High complexity",         time:"6–12 hrs",   desc:"Reasonable adjustments under Equality Act 2010. Legal duty. Document all decisions."},
+  out_formal_absence_lt_capability:{level:"high",score:"H3",title:"High complexity",   time:"15–25 hrs",  desc:"Capability process for long-term sickness. All options exhausted. Legal consult essential."},
+  out_flexible_work:       {level:"low",    score:"L2",title:"Low complexity",          time:"1–3 hrs",    desc:"Statutory flexible working request. Written decision within 2 months (ER Flexible Working Act 2023)."},
+  out_disability_adjust:   {level:"high",   score:"H1",title:"High complexity",         time:"6–12 hrs",   desc:"Disability-related adjustment. Equality Act 2010 duty. OH referral, documented decision-making."},
+  out_informal_accommodation:{level:"low",  score:"L1",title:"Low complexity",          time:"0.5–1 hr",   desc:"Informal accommodation agreed. Practical steps, written record, 4-week review."},
+  out_parental_leave:      {level:"low",    score:"L2",title:"Low complexity",          time:"1–3 hrs",    desc:"Statutory parental leave. Entitlement confirmed, written plan, payroll notified."},
+  out_work_environment:    {level:"medium", score:"M1",title:"Medium complexity",       time:"2–5 hrs",    desc:"Work environment or safety concern. Risk assessment, mitigation, follow-up within 5 days."}
+};
+function getComplexity(k){
+  return COMPLEXITY[k]||{level:"medium",score:"?",title:"Complexity not assessed",time:"Varies",desc:"Use professional judgement."};
+}
+function cxHTML(k){
+  const cx=getComplexity(k);
+  return`<div class="cx-wrap cx-${cx.level}"><div class="cx-badge"><div class="cx-label">Complexity</div><div class="cx-score">${cx.score}</div></div><div class="cx-detail"><div class="cx-title">${cx.title} · Est. ${cx.time}</div><div class="cx-desc">${cx.desc}</div></div></div>`;
+}
+
+render();
+</script>
+</body>
+</html>
